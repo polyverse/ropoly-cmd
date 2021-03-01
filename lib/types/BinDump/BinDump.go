@@ -49,6 +49,18 @@ func GenerateElfBinDumpFromFile(path string) (BinDump, error) {
 	}, nil
 }
 
+//func GeneratePeBinDumpFromFile(path string) (BinDump, error) {
+//	peFile, err := pe.Open(path)
+//	if err != nil {
+//		return BinDump{}, err
+//	}
+//
+//	sections := make([]Segment, 0, len(peFile.Sections))
+//	for _, section := range peFile.Sections {
+//		section.SectionHeader.
+//	}
+//}
+
 func GenerateBinDumpFromPid(pid uint) (BinDump, error) {
 	softerrors := []error{} // TODO: do something with these
 	proc := process.GetProcess(int(pid))
