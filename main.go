@@ -208,10 +208,13 @@ func eqiMain(inputForm form, args []string) {
 func getInputAsBinDump(inputPath string, form form) (BinDump.BinDump, error) {
 	switch form {
 	case FORM_FILEPATH:
-		return BinDump.GenerateElfBinDump(inputPath)
+		return BinDump.GenerateElfBinDumpFromFile(inputPath)
 	case FORM_PID:
-		err := errors.New("Conversion from pid to bindump not yet implemented")
-		return BinDump.BinDump{}, err
+		pid, err := strconv.ParseUint(inputPath, 10, 64)
+		if err != nil {
+			return BinDump.BinDump{}, err
+		}
+		return BinDump.GenerateBinDumpFromPid(uint(pid))
 	case FORM_BINDUMP:
 		return BinDump.OpenBinDump(inputPath)
 	default:

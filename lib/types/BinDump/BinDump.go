@@ -3,6 +3,8 @@ package BinDump
 import (
 	"debug/elf"
 	"encoding/json"
+	"github.com/polyverse/masche/memaccess"
+	"github.com/polyverse/masche/process"
 	"io/ioutil"
 )
 
@@ -16,7 +18,7 @@ type BinDump struct {
 	Segments []Segment  `json:"segments"`
 }
 
-func GenerateElfBinDump(path string) (BinDump, error) {
+func GenerateElfBinDumpFromFile(path string) (BinDump, error) {
 	elfFile, err := elf.Open(path)
 	if err != nil {
 		return BinDump{}, err
@@ -44,6 +46,48 @@ func GenerateElfBinDump(path string) (BinDump, error) {
 	return BinDump{
 		Machine: elfFile.Machine,
 		Segments: segments,
+	}, nil
+}
+
+func GenerateBinDumpFromPid(pid uint) (BinDump, error) {
+	softerrors := []error{} // TODO: do something with these
+	proc := process.GetProcess(int(pid))
+
+	segments := []Segment{}
+	pc := uintptr(0)
+	for {
+
+		region, harderror, softerrors2 := memaccess.NextMemoryRegionAccess(proc, uintptr(pc), memaccess.Readable+memaccess.Executable)
+		softerrors = append(softerrors, softerrors2...)
+		if harderror != nil {
+			return BinDump{}, harderror
+		}
+		if region == memaccess.NoRegionAvailable {
+			break
+		}
+
+		//Make sure we move the Program Counter
+		pc = region.Address + uintptr(region.Size)
+
+		contents := make([]byte, region.Size, region.Size)
+		harderror, softerrors2 = memaccess.CopyMemory(proc, region.Address, contents)
+		softerrors = append(softerrors, softerrors2...)
+		if harderror != nil {
+			return BinDump{}, harderror
+		}
+
+		segment := Segment{
+			uint64(region.Address),
+			contents,
+		}
+		segments = append(segments, segment)
+	}
+
+	machine := elf.EM_X86_64 // TODO: assuming X86_64 for now
+
+	return BinDump{
+		machine,
+		segments,
 	}, nil
 }
 
