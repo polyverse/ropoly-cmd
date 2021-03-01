@@ -1,0 +1,7 @@
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+github.com/polyverse/binexp v1.1.8 h1:caFIX/cQC/8UDKMR2+U1rY7XAs0KhvVse3TdFMbdoAA=
+github.com/polyverse/binexp v1.1.8/go.mod h1:CgVJQIZgw2gu33bPA5lrNAYI4DpYQ2F2hC+2BuZSle8=
+golang.org/x/arch v0.0.0-20210222215009-a3652b17bebe h1:AWfGPxiY7O6ogpT6G/vqOzEwxQeUuh9HhEY9ixwfmTg=
+golang.org/x/arch v0.0.0-20210222215009-a3652b17bebe/go.mod h1:flIaEI6LNU6xOCD5PaJvn9wGP0agmIOqjrtsKGRguv4=
+rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=
