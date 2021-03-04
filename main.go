@@ -199,7 +199,14 @@ func eqiMain(inputForm form, args []string) {
 		os.Exit(1)
 	}
 
-	eqi := eqi.SharedOffsetsPerGadgetEqi(fingerprint1, fingerprint2)
+	eqiFunc, err := getEqiFunc(args)
+	if err != nil {
+		helpFingerprint()
+		println("Failed to parse EQI function: " + err.Error())
+		os.Exit(1)
+	}
+
+	eqi := eqiFunc(fingerprint1, fingerprint2)
 
 	eqiString := strconv.FormatFloat(eqi, 'f', -1, 64)
 	fmt.Print(eqiString)
@@ -283,4 +290,26 @@ func getArgValue(args []string, name string) (bool, string) {
 		}
 	}
 	return false, ""
+}
+
+type eqiFunc func(f1, f2 Fingerprint.Fingerprint) float64
+
+func getEqiFunc(args []string) (eqiFunc, error) {
+	argExists, arg := getArgValue(args, "eqi-func")
+	if argExists {
+		switch arg {
+		case "shared-offsets":
+			return eqi.SharedOffsetsPerGadgetEqi, nil
+		case "kill-rate":
+			return eqi.KillRateEqi, nil
+		case "highest-offset-count":
+			return eqi.HighestOffsetCountEqi, nil
+		case "kill-rate-without-movement":
+			return eqi.KillRateWithoutMovementEqi, nil
+		default:
+			return nil, errors.New(arg + " is not a valid EQI function.")
+		}
+	} else {
+		return eqi.SharedOffsetsPerGadgetEqi, nil
+	}
 }
