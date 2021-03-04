@@ -292,6 +292,19 @@ func getArgValue(args []string, name string) (bool, string) {
 	return false, ""
 }
 
+func getUintArg(args []string, name string, defaultArgValue uint) (uint, error) {
+	argStringExists, argString := getArgValue(args, name)
+	if argStringExists {
+		argUint, err := strconv.ParseUint(argString, 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		return uint(argUint), nil
+	} else {
+		return defaultArgValue, nil
+	}
+}
+
 type eqiFunc func(f1, f2 Fingerprint.Fingerprint) float64
 
 func getEqiFunc(args []string) (eqiFunc, error) {
@@ -306,6 +319,16 @@ func getEqiFunc(args []string) (eqiFunc, error) {
 			return eqi.HighestOffsetCountEqi, nil
 		case "kill-rate-without-movement":
 			return eqi.KillRateWithoutMovementEqi, nil
+		case "monte-carlo":
+			trials, err := getUintArg(args, "trials", 10000)
+			if err != nil {
+				return nil, err
+			}
+			numGadgets, err := getUintArg(args, "num-gadgets", 3)
+			if err != nil {
+				return nil, err
+			}
+			return eqi.SharedOffsetExistsMonteCarloEqi(numGadgets, trials), nil
 		default:
 			return nil, errors.New(arg + " is not a valid EQI function.")
 		}

@@ -25,6 +25,6 @@ func HighestOffsetCountEqi(f1, f2 Fingerprint.Fingerprint) float64 {
 			highestOffsetCount = offsetCount
 		}
 	}
-	
+
 	return float64(100.0) * (float64(1.0) - (float64(highestOffsetCount) / float64(gadgetInstanceCount)))
 }
