@@ -7,7 +7,7 @@ binary and a directory `TestFiles` containing some simple fake fingerprints for 
 
 ## Usage
 
-`ropoly-cmd <input format> <output format> [additional args needed depending on output format]`
+`./ropoly-cmd <input format> <output format> [additional args needed depending on output format]`
 
 The behavior depends on the output format, but generally `ropoly-cmd` takes input from a file in the format specified
 by `<input format>`, converts it to the format specified by `<output format>`, and prints the result to the command line.
@@ -43,7 +43,7 @@ As the output type, the JSON object is printed to stdout.
 
 ##### Usage for `bindump` output
 
-`ropoly-cmd <input format> bindump <path/to/input/file>`
+`./ropoly-cmd <input format> bindump <path/to/input/file>`
 
 Valid input formats are `file`, `pid`, and `bindump` (conversion from `bindump` to `bindump` is a no-op).
 
@@ -57,7 +57,7 @@ As an output type, the JSON object is printed to stdout.
 
 ##### Usage for `fingerpint` output
 
-`ropoly-cmd <input format> fingerprint <path/to/input/file> [min-gadget-length <non-negative integer>] [max-gadget-length <non-negative integer>]`
+`./ropoly-cmd <input format> fingerprint <path/to/input/file> [min-gadget-length <non-negative integer>] [max-gadget-length <non-negative integer>]`
 
 Valid input formats are `file`, `pid`, `bindump`, and `fingerprint` (conversion from `fingerpint` to `fingerprint` is a no-op).
 
@@ -74,7 +74,7 @@ As the output type, the EQI score is printed to stdout.
 
 ##### Usage for `eqi` output
 
-`ropoly-cmd <input format> eqi <path/to/original> <path/to/modified [min-gadget-length <non-negative integer>] [max-gadget-length <non-negative integer>]`
+`./ropoly-cmd <input format> eqi <path/to/original> <path/to/modified [min-gadget-length <non-negative integer>] [max-gadget-length <non-negative integer>]`
 
 Valid input formats are `file`, `pid`, `bindump`, and `fingerprint`.
 
@@ -91,15 +91,30 @@ Usually only gadgets below a certain length are considered useful for attackers.
 
 ##### EQI calculation
 
-Currently, EQI is calculated as the average of each of the original binary's gadgets' EQI contribution. For a gadget `g`
+By default, EQI is calculated as the average of each of the original binary's gadgets' EQI contribution. For a gadget `g`
 such that the modified binary contains no identical gadget to `g`, `g`'s EQI contribution is 0. Otherwise, `g`'s EQI
 contribution is calculated as `100 * (1 - (m/t))` where `t` is the total number of gadgets in the original binary and
-`m` is the size of the largest subset of gadgets from the original binary including `g` such that an offset `f` exists,
-such that for each gadget `h` in the subset, the modified binary contains an identical gadget offset by `f` bytes from
+`m` is the size of the largest subset of gadgets from the original binary including `g` such that an offset `k` exists,
+such that for each gadget `h` in the subset, the modified binary contains an identical gadget offset by `k` bytes from
 its original location.
 
-This is equivalent to the `shared-offsets` EQI function from https://github.com/polyverse/ropoly. None of the other EQI
-functions found there are currently implemented.
+You can change the EQI calculation to one of several by appending to the command `eqi-func <name of EQI calculation>`.
+For example: `./ropoly-cmd file eqi <path/to/original> <path/to/modified> eqi-func shared-offsets`
+
+###### `eqi-func` options
+
+`shared-offsets` Use the default calculation.
+
+`kill-rate` Use the percentage of gadgets from the original binary that exist at the same address in the modified binary.
+
+`kill-rate-without-movement` Use the percentage of gadgets whose byte sequences do not appear anywhere in the modified binary's executable segments.
+
+`highest-offset-count` Find the greatest number `n` of gadgets from the original such that an offset `k` exists and each gadget's byte sequence can be found in the modified binary at `gadget's original address`+`k`. Return 100*(1-`n`)/`total number of gadgets in original binary`.
+
+`monte-carlo` Optionally, the arguments `trials` and `num-gadgets` can be supplied followed by non-negative integer values.
+Their defaults are 10,000 and 3 respectively. Randomly selects `num-gadgets` gadgets from the original binary, and checks
+whether an offset `k` exists such that each gadget can be found in the modified binary at its original address + `k`.
+Repeats this test `trials` times, and returns the percentage of tests in which no common offset was found.
 
 ### Specifying gadget length
 
