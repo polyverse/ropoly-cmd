@@ -28,6 +28,10 @@ func SharedOffsetExistsMonteCarloEqi(numGadgets uint, trials uint) func(Fingerpr
 			for k, gadgetInstanceIndex := range gadgetInstanceIndices {
 				firstIteration := k == 0
 
+				if !firstIteration && (len(sharedDisplacements) == 0) {
+					break
+				}
+
 				var gadgetKey string
 				var f1Address uint64
 				for key, keyIndex := range gadgetsToIndices {
@@ -48,8 +52,10 @@ func SharedOffsetExistsMonteCarloEqi(numGadgets uint, trials uint) func(Fingerpr
 				if firstIteration {
 					sharedDisplacements = displacements
 				} else {
-					for displacement, sharedSoFar := range sharedDisplacements {
-						sharedDisplacements[displacement] = sharedSoFar && displacements[displacement]
+					for displacement := range sharedDisplacements {
+						if !displacements[displacement] {
+							delete(sharedDisplacements, displacement)
+						}
 					}
 				}
 			}
