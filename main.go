@@ -323,7 +323,7 @@ func getEqiFunc(args []string) (eqiFunc, error) {
 	case "kill-rate-without-movement":
 		return eqi.KillRateWithoutMovementEqi, nil
 	case "monte-carlo":
-		trials, err := getUintArg(args, "trials", 10000)
+		trials, err := getUintArg(args, "trials", 100000)
 		if err != nil {
 			return nil, err
 		}
