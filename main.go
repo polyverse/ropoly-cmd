@@ -26,7 +26,7 @@ const FORM_FINGERPRINT_STRING = "fingerprint"
 const FORM_EQI_STRING = "eqi"
 
 const MIN_GADGET_LENGTH_DEFAULT = 0
-const MAX_GADGET_LENGTH_DEFAULT = 2
+const MAX_GADGET_LENGTH_DEFAULT = 6
 
 func help() {
 	println("Usage: " + os.Args[0] + " <input format (\"file\", \"pid\", \"bindump\", or \"fingerprint\")> <output format (\"bindump\", \"fingerprint\", or \"eqi\")> [additional args required for output format...]")
@@ -247,7 +247,7 @@ func getInputAsFingerprint(inputPath string, form form, spec Gadget.UserSpec) (F
 }
 
 func parseGadgetSpec(args []string, form form) (Gadget.UserSpec, error) {
-	var minGadgetLength uint = 0
+	var minGadgetLength uint
 	specified, minGadgetLengthString := getArgValue(args, "min-gadget-length")
 	if specified {
 		if form == FORM_FINGERPRINT {
