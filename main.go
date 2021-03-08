@@ -309,30 +309,30 @@ type eqiFunc func(f1, f2 Fingerprint.Fingerprint) float64
 
 func getEqiFunc(args []string) (eqiFunc, error) {
 	argExists, arg := getArgValue(args, "eqi-func")
-	if argExists {
-		switch arg {
-		case "shared-offsets":
-			return eqi.SharedOffsetsPerGadgetEqi, nil
-		case "kill-rate":
-			return eqi.KillRateEqi, nil
-		case "highest-offset-count":
-			return eqi.HighestOffsetCountEqi, nil
-		case "kill-rate-without-movement":
-			return eqi.KillRateWithoutMovementEqi, nil
-		case "monte-carlo":
-			trials, err := getUintArg(args, "trials", 10000)
-			if err != nil {
-				return nil, err
-			}
-			numGadgets, err := getUintArg(args, "num-gadgets", 3)
-			if err != nil {
-				return nil, err
-			}
-			return eqi.SharedOffsetExistsMonteCarloEqi(numGadgets, trials), nil
-		default:
-			return nil, errors.New(arg + " is not a valid EQI function.")
-		}
-	} else {
+	if !argExists {
+		arg = "shared-offsets"
+	}
+
+	switch arg {
+	case "shared-offsets":
 		return eqi.SharedOffsetsPerGadgetEqi, nil
+	case "kill-rate":
+		return eqi.KillRateEqi, nil
+	case "highest-offset-count":
+		return eqi.HighestOffsetCountEqi, nil
+	case "kill-rate-without-movement":
+		return eqi.KillRateWithoutMovementEqi, nil
+	case "monte-carlo":
+		trials, err := getUintArg(args, "trials", 10000)
+		if err != nil {
+			return nil, err
+		}
+		numGadgets, err := getUintArg(args, "num-gadgets", 3)
+		if err != nil {
+			return nil, err
+		}
+		return eqi.SharedOffsetExistsMonteCarloEqi(numGadgets, trials), nil
+	default:
+		return nil, errors.New(arg + " is not a valid EQI function.")
 	}
 }
