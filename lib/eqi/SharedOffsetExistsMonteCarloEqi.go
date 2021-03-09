@@ -5,74 +5,68 @@ import (
 	"math/rand"
 )
 
+type InstanceId struct {
+	Key string
+	Address uint64
+}
+
 func SharedOffsetExistsMonteCarloEqi(numGadgets uint, trials uint) func(Fingerprint.Fingerprint, Fingerprint.Fingerprint) float64 {
 	return func(f1, f2 Fingerprint.Fingerprint) float64 {
 
-		gadgetsToIndices := make(map[string]int)
-		workingIndex := 0
-		for key, addresses := range f1.Contents {
-			gadgetsToIndices[key] = workingIndex
-			workingIndex += len(addresses)
+		indexedInstances := make([]InstanceId, 0, 0)
+		f1InstancesToDisplacements := make(map[InstanceId]map[int64]bool)
+		for key, f1Addresses := range f1.Contents {
+			for _, f1Address := range f1Addresses {
+				instanceId := InstanceId{
+					Key: key,
+					Address: f1Address,
+				}
+				indexedInstances = append(indexedInstances, instanceId)
+			}
 		}
-		gadgetInstanceCount := workingIndex
 
-		displacementFoundCount := uint(0)
-		for i := uint(0); i < trials; i++ {
+		noCommonDisplacementCount := 0
+		for trial := uint(0); trial < trials; trial++ {
 
-			gadgetInstanceIndices := make([]int, numGadgets, numGadgets)
-			for j := uint(0); j < numGadgets; j++ {
-				gadgetInstanceIndices[j] = rand.Intn(gadgetInstanceCount)
+			selectedInstances := make([]InstanceId, numGadgets, numGadgets)
+			for i := uint(0); i < numGadgets; i++ {
+				instanceId := indexedInstances[rand.Intn(len(indexedInstances))]
+				selectedInstances[i] = instanceId
 			}
 
-			var sharedDisplacements map[int64]bool
-			for k, gadgetInstanceIndex := range gadgetInstanceIndices {
-				firstIteration := k == 0
+			f1InstancesToDisplacements = ensureDisplacementsSetExistsForF1Instance(f1, f2, selectedInstances[0], f1InstancesToDisplacements)
+			// Copy f1InstancesToDisplacements[selectedInstances[0]]
+			commonDisplacements := make(map[int64]bool)
+			for key, value := range f1InstancesToDisplacements[selectedInstances[0]] {
+				commonDisplacements[key] = value
+			}
 
-				if !firstIteration && (len(sharedDisplacements) == 0) {
-					break
-				}
-
-				var gadgetKey string
-				var f1Address uint64
-				for key, keyIndex := range gadgetsToIndices {
-					if keyIndex <= gadgetInstanceIndex && gadgetInstanceIndex < keyIndex + len(f1.Contents[key]) {
-						gadgetKey = key
-						f1Address = f1.Contents[key][gadgetInstanceIndex -keyIndex]
-						break
-					}
-				}
-
-				f2Addresses := f2.Contents[gadgetKey]
-				displacements := make(map[int64]bool)
-				for _, f2Address := range f2Addresses {
-					displacement := int64(f2Address) - int64(f1Address)
-					displacements[displacement] = true
-				}
-
-				if firstIteration {
-					sharedDisplacements = displacements
-				} else {
-					for displacement := range sharedDisplacements {
-						if !displacements[displacement] {
-							delete(sharedDisplacements, displacement)
-						}
+			for i := uint(1); (len(commonDisplacements) != 0) && (i < numGadgets); i++ {
+				f1InstancesToDisplacements = ensureDisplacementsSetExistsForF1Instance(f1, f2, selectedInstances[i], f1InstancesToDisplacements)
+				for displacement := range commonDisplacements {
+					if !f1InstancesToDisplacements[selectedInstances[i]][displacement] {
+						delete(commonDisplacements, displacement)
 					}
 				}
 			}
 
-			sharedDisplacementExists := false
-			for _, actuallyShared := range sharedDisplacements {
-				if actuallyShared {
-					sharedDisplacementExists = true
-					break
-				}
-			}
-			if sharedDisplacementExists {
-				displacementFoundCount++
+			if len(commonDisplacements) == 0 {
+				noCommonDisplacementCount++
 			}
 		}
 
-		noCommonDisplacementCount := trials - displacementFoundCount
 		return float64(100.0) * (float64(noCommonDisplacementCount) / float64(trials))
 	}
+}
+
+func ensureDisplacementsSetExistsForF1Instance(f1, f2 Fingerprint.Fingerprint, instanceId InstanceId, f1InstancesToDisplacements map[InstanceId]map[int64]bool) map[InstanceId]map[int64]bool {
+	if f1InstancesToDisplacements[instanceId] == nil {
+		displacements := make(map[int64]bool)
+		f2Addresses := f2.Contents[instanceId.Key]
+		for _, f2Address := range f2Addresses {
+			displacements[int64(f2Address) - int64(instanceId.Address)] = true
+		}
+		f1InstancesToDisplacements[instanceId] = displacements
+	}
+	return f1InstancesToDisplacements
 }
