@@ -14,7 +14,6 @@ func SharedOffsetExistsMonteCarloEqi(numGadgets uint, trials uint) func(Fingerpr
 	return func(f1, f2 Fingerprint.Fingerprint) float64 {
 
 		indexedInstances := make([]InstanceId, 0, 0)
-		f1InstancesToDisplacements := make(map[InstanceId]map[int64]bool)
 		for key, f1Addresses := range f1.Contents {
 			for _, f1Address := range f1Addresses {
 				instanceId := InstanceId{
@@ -34,17 +33,12 @@ func SharedOffsetExistsMonteCarloEqi(numGadgets uint, trials uint) func(Fingerpr
 				selectedInstances[i] = instanceId
 			}
 
-			f1InstancesToDisplacements = ensureDisplacementsSetExistsForF1Instance(f1, f2, selectedInstances[0], f1InstancesToDisplacements)
-			// Copy f1InstancesToDisplacements[selectedInstances[0]]
-			commonDisplacements := make(map[int64]bool)
-			for key, value := range f1InstancesToDisplacements[selectedInstances[0]] {
-				commonDisplacements[key] = value
-			}
+            commonDisplacements := displacementSetForF1Instance(f1, f2, selectedInstances[0])
 
 			for i := uint(1); (len(commonDisplacements) != 0) && (i < numGadgets); i++ {
-				f1InstancesToDisplacements = ensureDisplacementsSetExistsForF1Instance(f1, f2, selectedInstances[i], f1InstancesToDisplacements)
+                nextInstanceDisplacements := displacementSetForF1Instance(f1, f2, selectedInstances[i])
 				for displacement := range commonDisplacements {
-					if !f1InstancesToDisplacements[selectedInstances[i]][displacement] {
+					if !nextInstanceDisplacements[displacement] {
 						delete(commonDisplacements, displacement)
 					}
 				}
@@ -59,14 +53,11 @@ func SharedOffsetExistsMonteCarloEqi(numGadgets uint, trials uint) func(Fingerpr
 	}
 }
 
-func ensureDisplacementsSetExistsForF1Instance(f1, f2 Fingerprint.Fingerprint, instanceId InstanceId, f1InstancesToDisplacements map[InstanceId]map[int64]bool) map[InstanceId]map[int64]bool {
-	if f1InstancesToDisplacements[instanceId] == nil {
-		displacements := make(map[int64]bool)
-		f2Addresses := f2.Contents[instanceId.Key]
-		for _, f2Address := range f2Addresses {
-			displacements[int64(f2Address) - int64(instanceId.Address)] = true
-		}
-		f1InstancesToDisplacements[instanceId] = displacements
-	}
-	return f1InstancesToDisplacements
+func displacementSetForF1Instance(f1, f2 Fingerprint.Fingerprint, instanceId InstanceId) map[int64]bool {
+    displacements := make(map[int64]bool)
+    f2Addresses := f2.Contents[instanceId.Key]
+    for _, f2Address := range f2Addresses {
+        displacements[int64(f2Address) - int64(instanceId.Address)] = true
+    }
+    return displacements
 }
