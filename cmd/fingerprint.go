@@ -3,7 +3,6 @@ package cmd
 import (
     "fmt"
     "github.com/polyverse/ropoly-cmd/lib/types/Fingerprint"
-    "github.com/polyverse/ropoly-cmd/lib/types/Gadget"
     "github.com/spf13/cobra"
 )
 
@@ -17,10 +16,7 @@ var fingerprintCmd = &cobra.Command{
     Args:       cobra.ExactArgs(1),
     RunE:       func(cmd *cobra.Command, args []string) error {
         f, input := positionalArgAsFormAndValue(args[0])
-        fingerprint, err := getInputAsFingerprint(input, f, Gadget.UserSpec{
-            MinSize: MIN_GADGET_LENGTH_DEFAULT,
-            MaxSize: MAX_GADGET_LENGTH_DEFAULT,
-        })
+        fingerprint, err := getInputAsFingerprint(input, f, gadgetSpec)
         if err != nil {
        		return err
        	}
