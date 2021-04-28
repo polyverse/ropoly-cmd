@@ -11,8 +11,8 @@ func init() {
 }
 
 var fingerprintCmd = &cobra.Command{
-    Use:        "fingerprint --binary=<path>|--pid=<PID>|--dump=<path>",
-    Short:      "Generates a fingerprint of a binary or running process.",
+    Use:        "fingerprint --binary=<path>|--pid=<PID>",
+    Short:      "Generates a fingerprint of a binary file or running process.",
     Args:       cobra.ExactArgs(1),
     RunE:       func(cmd *cobra.Command, args []string) error {
         f, input := positionalArgAsFormAndValue(args[0])

@@ -17,7 +17,7 @@ var rootCmd = &cobra.Command{
   Short:    "Ropoly-cmd is a tool for evaluating entropy in scrambled binaries.",
   Long:     "Ropoly-cmd is a tool for evaluating entropy in scrambled binaries. Documentation can be found at https://github.com/polyverse/ropoly-cmd.",
   Run: func(cmd *cobra.Command, args []string) {
-    println("Supported commands: dump, fingerprint, eqi")
+    println("Supported commands: fingerprint, eqi")
   },
 }
 
