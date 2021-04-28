@@ -22,18 +22,16 @@ func init() {
 }
 
 var eqiCmd = &cobra.Command{
-    Use:        "eqi --binary=<path>|--pid=<PID>|--dump=<path>|--fingerprint=<path>",
-    Short:      "Compares two binaries and generates an EQI representing how well-scrambled the second is relative to the first.",
+    Use:        "./ropoly-cmd eqi <path> <path>",
+    Short:      "Compares two fingerprints and generates an EQI representing how well-scrambled the binary represented by the second second is relative to the first.",
     Args:       cobra.ExactArgs(2),
     RunE:       func(cmd *cobra.Command, args []string) error {
-        f0, input0 := positionalArgAsFormAndValue(args[0])
-        fingerprint0, err := getInputAsFingerprint(input0, f0, gadgetSpec)
+        fingerprint0, err := getInputAsFingerprint(args[0], FORM_FINGERPRINT, gadgetSpec)
         if err != nil {
        		return err
        	}
 
-       	f1, input1 := positionalArgAsFormAndValue(args[1])
-       	fingerprint1, err := getInputAsFingerprint(input1, f1, gadgetSpec)
+       	fingerprint1, err := getInputAsFingerprint(args[1], FORM_FINGERPRINT, gadgetSpec)
        	if err != nil {
        	    return err
        	}
