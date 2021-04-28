@@ -6,17 +6,25 @@ import (
     "github.com/spf13/cobra"
 )
 
+var inputIsPid bool
+
 func init() {
-  rootCmd.AddCommand(fingerprintCmd)
+    fingerprintCmd.PersistentFlags().BoolVarP(&inputIsPid, "pid", "p", false, "Input argument represents the PID of a running process, rather than a path to a binary file.")
+
+    rootCmd.AddCommand(fingerprintCmd)
 }
 
 var fingerprintCmd = &cobra.Command{
-    Use:        "fingerprint --binary=<path>|--pid=<PID>",
-    Short:      "Generates a fingerprint of a binary file or running process.",
+    Use:        "fingerprint <path/to/binary (or PID with --pid)>",
+    Short:      "Generates a fingerprint of a binary file (default) or running process (with --pid).",
     Args:       cobra.ExactArgs(1),
     RunE:       func(cmd *cobra.Command, args []string) error {
-        f, input := positionalArgAsFormAndValue(args[0])
-        bindump, err := getInputAsBinDump(input, f)
+        f := FORM_FILEPATH
+        if inputIsPid {
+            f = FORM_PID
+        }
+
+        bindump, err := getInputAsBinDump(args[0], f)
         if err != nil {
        		return err
        	}
