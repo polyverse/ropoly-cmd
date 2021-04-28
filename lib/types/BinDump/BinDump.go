@@ -2,10 +2,8 @@ package BinDump
 
 import (
 	"debug/elf"
-	"encoding/json"
 	"github.com/polyverse/masche/memaccess"
 	"github.com/polyverse/masche/process"
-	"io/ioutil"
 )
 
 type Segment struct {
@@ -49,18 +47,6 @@ func GenerateElfBinDumpFromFile(path string) (BinDump, error) {
 	}, nil
 }
 
-//func GeneratePeBinDumpFromFile(path string) (BinDump, error) {
-//	peFile, err := pe.Open(path)
-//	if err != nil {
-//		return BinDump{}, err
-//	}
-//
-//	sections := make([]Segment, 0, len(peFile.Sections))
-//	for _, section := range peFile.Sections {
-//		section.SectionHeader.
-//	}
-//}
-
 func GenerateBinDumpFromPid(pid uint) (BinDump, error) {
 	softerrors := []error{} // TODO: do something with these
 	proc := process.GetProcess(int(pid))
@@ -101,27 +87,4 @@ func GenerateBinDumpFromPid(pid uint) (BinDump, error) {
 		machine,
 		segments,
 	}, nil
-}
-
-func OpenBinDump(path string) (BinDump, error) {
-	b, err := ioutil.ReadFile(path)
-	if err != nil {
-		return BinDump{}, err
-	}
-
-	var binDump BinDump
-	err = json.Unmarshal(b, &binDump)
-	if err != nil {
-		return BinDump{}, err
-	}
-
-	return binDump, nil
-}
-
-func EncodeBinDump(binDump BinDump) (string, error) {
-	b, err := json.MarshalIndent(binDump, "", "    ")
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
 }
