@@ -17,22 +17,15 @@ const FORM_EQI = form(5)
 
 const FORM_FILEPATH_STRING = "binary"
 const FORM_PID_STRING = "pid"
-const FORM_FINGERPRINT_STRING = "fingerprint"
-const FORM_EQI_STRING = "eqi"
 
 var STRING_FORM_MAP = map[string]form{
 	FORM_FILEPATH_STRING:    FORM_FILEPATH,
 	FORM_PID_STRING:         FORM_PID,
-	FORM_FINGERPRINT_STRING: FORM_FINGERPRINT,
-	FORM_EQI_STRING:         FORM_EQI,
 }
 
 var FORM_STRING_MAP = map[form]string{
-	0:                "unknown",
 	FORM_FILEPATH:    FORM_FILEPATH_STRING,
 	FORM_PID:         FORM_PID_STRING,
-	FORM_FINGERPRINT: FORM_FINGERPRINT_STRING,
-	FORM_EQI:         FORM_EQI_STRING,
 }
 
 func positionalArgAsFormAndValue(arg string) (form, string) {
@@ -50,8 +43,6 @@ func getInputAsBinDump(inputPath string, form form) (BinDump.BinDump, error) {
 			return BinDump.BinDump{}, err
 		}
 		return BinDump.GenerateBinDumpFromPid(uint(pid))
-	case FORM_BINDUMP:
-		return BinDump.OpenBinDump(inputPath)
 	default:
 		err := errors.New("Bad input form " + FORM_STRING_MAP[form])
 		return BinDump.BinDump{}, err
