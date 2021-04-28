@@ -3,8 +3,6 @@ package cmd
 import (
 	"errors"
 	"github.com/polyverse/ropoly-cmd/lib/types/BinDump"
-	"github.com/polyverse/ropoly-cmd/lib/types/Fingerprint"
-	"github.com/polyverse/ropoly-cmd/lib/types/Gadget"
 	"strconv"
 	"strings"
 )
@@ -58,20 +56,4 @@ func getInputAsBinDump(inputPath string, form form) (BinDump.BinDump, error) {
 		err := errors.New("Bad input form " + FORM_STRING_MAP[form])
 		return BinDump.BinDump{}, err
 	}
-}
-
-func getInputAsFingerprint(inputPath string, form form, spec Gadget.UserSpec) (Fingerprint.Fingerprint, error) {
-	var binDump BinDump.BinDump
-	var err error
-	switch form {
-	case FORM_FINGERPRINT:
-		return Fingerprint.OpenFingerprint(inputPath)
-	default:
-		binDump, err = getInputAsBinDump(inputPath, form)
-	}
-	if err != nil {
-		return Fingerprint.Fingerprint{}, err
-	}
-
-	return Fingerprint.GenerateFingerprintFromBinDump(binDump, spec)
 }
