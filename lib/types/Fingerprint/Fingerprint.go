@@ -16,11 +16,20 @@ type Fingerprint struct {
 }
 
 func GenerateFingerprintFromGadgets(gadgets []*Gadget.GadgetInstance, gadgetSpec Gadget.UserSpec) Fingerprint {
-	contents := make(Contents)
-	for _, gadget := range gadgets {
-		key := gadget.Gadget.Bytes().String()
-		contents[key] = append(contents[key], gadget.Address)
-	}
+    setContents := make(map[string]map[uint64]bool)
+    for _, gadget := range gadgets {
+        key := gadget.Gadget.Bytes().String()
+        if setContents[key] == nil {
+            setContents[key] = make(map[uint64]bool)
+        }
+        setContents[key][gadget.Address] = true
+    }
+    contents := make(Contents)
+    for gadgetKey, addresses := range setContents {
+        for address := range addresses {
+            contents[gadgetKey] = append(contents[gadgetKey], address)
+        }
+    }
 	return Fingerprint{
 		contents,
 		gadgetSpec,
