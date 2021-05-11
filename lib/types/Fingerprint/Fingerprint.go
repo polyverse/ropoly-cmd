@@ -6,6 +6,7 @@ import (
 	"github.com/polyverse/ropoly-cmd/lib/types/BinDump"
 	"github.com/polyverse/ropoly-cmd/lib/types/Gadget"
 	"io/ioutil"
+	"time"
 )
 
 type Contents map[string][]uint64
@@ -13,6 +14,7 @@ type Contents map[string][]uint64
 type Fingerprint struct {
 	Contents Contents
 	GadgetSpec Gadget.UserSpec
+	CreationTime time.Time
 }
 
 func GenerateFingerprintFromGadgets(gadgets []*Gadget.GadgetInstance, gadgetSpec Gadget.UserSpec) Fingerprint {
@@ -33,6 +35,7 @@ func GenerateFingerprintFromGadgets(gadgets []*Gadget.GadgetInstance, gadgetSpec
 	return Fingerprint{
 		contents,
 		gadgetSpec,
+		time.Now(),
 	}
 }
 
