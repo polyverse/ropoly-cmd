@@ -6,7 +6,7 @@ import (
 )
 
 type InstanceId struct {
-	Key string
+	Key uint64
 	Address uint64
 }
 

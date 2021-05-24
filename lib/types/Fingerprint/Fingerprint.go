@@ -1,6 +1,8 @@
 package Fingerprint
 
 import (
+    "crypto/md5"
+    "encoding/binary"
 	"encoding/json"
 	"github.com/polyverse/ropoly-cmd/lib/architectures"
 	"github.com/polyverse/ropoly-cmd/lib/types/BinDump"
@@ -8,7 +10,7 @@ import (
 	"io/ioutil"
 )
 
-type Contents map[string][]uint64
+type Contents map[uint64][]uint64
 
 type Fingerprint struct {
 	Contents Contents
@@ -16,9 +18,11 @@ type Fingerprint struct {
 }
 
 func GenerateFingerprintFromGadgets(gadgets []*Gadget.GadgetInstance, gadgetSpec Gadget.UserSpec) Fingerprint {
-    setContents := make(map[string]map[uint64]bool)
+    setContents := make(map[uint64]map[uint64]bool)
     for _, gadget := range gadgets {
-        key := gadget.Gadget.Bytes().String()
+        hash := md5.Sum(gadget.Gadget.Bytes())
+        keyBytes := hash[8:16]
+        key := binary.LittleEndian.Uint64(keyBytes)
         if setContents[key] == nil {
             setContents[key] = make(map[uint64]bool)
         }
