@@ -55,14 +55,14 @@ func getEqiFunc() (eqiFunc, error) {
 	switch eqiFuncString {
 	case "shared-offsets":
 		return eqi.SharedOffsetsPerGadgetEqi, nil
-	case "kill-rate":
-		return eqi.KillRateEqi, nil
-	case "highest-offset-count":
-		return eqi.HighestOffsetCountEqi, nil
-	case "kill-rate-without-movement":
-		return eqi.KillRateWithoutMovementEqi, nil
-	case "monte-carlo":
-		return eqi.SharedOffsetExistsMonteCarloEqi(monteCarloNumGadgets, monteCarloTrials), nil
+// 	case "kill-rate":
+// 		return eqi.KillRateEqi, nil
+// 	case "highest-offset-count":
+// 		return eqi.HighestOffsetCountEqi, nil
+// 	case "kill-rate-without-movement":
+// 		return eqi.KillRateWithoutMovementEqi, nil
+// 	case "monte-carlo":
+// 		return eqi.SharedOffsetExistsMonteCarloEqi(monteCarloNumGadgets, monteCarloTrials), nil
 	default:
 		return nil, errors.New(eqiFuncString + " is not a valid EQI function.")
 	}

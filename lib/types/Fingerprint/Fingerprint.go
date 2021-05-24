@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 )
 
-type Contents map[string][]uint64
+type Contents []uint64
 
 type Fingerprint struct {
 	Contents Contents
@@ -16,19 +16,13 @@ type Fingerprint struct {
 }
 
 func GenerateFingerprintFromGadgets(gadgets []*Gadget.GadgetInstance, gadgetSpec Gadget.UserSpec) Fingerprint {
-    setContents := make(map[string]map[uint64]bool)
+    setContents := make(map[uint64]bool)
     for _, gadget := range gadgets {
-        key := gadget.Gadget.Bytes().String()
-        if setContents[key] == nil {
-            setContents[key] = make(map[uint64]bool)
-        }
-        setContents[key][gadget.Address] = true
+        setContents[gadget.Address] = true
     }
-    contents := make(Contents)
-    for gadgetKey, addresses := range setContents {
-        for address := range addresses {
-            contents[gadgetKey] = append(contents[gadgetKey], address)
-        }
+    contents := make(Contents, 0)
+    for address := range setContents {
+        contents = append(contents, address)
     }
 	return Fingerprint{
 		contents,
