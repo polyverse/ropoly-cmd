@@ -41,6 +41,11 @@ var eqiCmd = &cobra.Command{
             return err
         }
 
+        if (len(fingerprint0.Contents) == 0) {
+            fmt.Println("100")
+            return nil
+        }
+
         eqi := eqiFunc(fingerprint0, fingerprint1)
 
         eqiString := strconv.FormatFloat(eqi, 'f', -1, 64)
