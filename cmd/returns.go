@@ -31,8 +31,8 @@ var returnsCmd = &cobra.Command{
        	for _, segment := range bindump.Segments {
        	    for address, b := range segment.Contents {
        	        if b == 0xc3 {
-       	            fileAddress = address % 0x200000 // TODO: quick hack that could be wrong in some circumstances
-       	            retsSet[uint32(address)] = true
+       	            fileAddress := address % 0x200000 // TODO: quick hack that could be wrong in some circumstances
+       	            retsSet[uint32(fileAddress)] = true
        	        }
        	    }
        	}
