@@ -8,6 +8,7 @@ import (
 
 type Segment struct {
 	Addr uint64     `json:"address"`
+	Offset uint64 `json:"offset"`
 	Contents []byte `json:"contents"`
 }
 
@@ -35,6 +36,7 @@ func GenerateElfBinDumpFromFile(path string) (BinDump, error) {
 
 			segment := Segment{
 				Addr: programHeader.Vaddr,
+				Offset: programHeader.Off,
 				Contents: segmentContents,
 			}
 			segments = append(segments, segment)
@@ -76,6 +78,7 @@ func GenerateBinDumpFromPid(pid uint) (BinDump, error) {
 
 		segment := Segment{
 			uint64(region.Address),
+			uint64(region.Address), // TODO: no such thing as file offset for pid; not sure what's best to use instead
 			contents,
 		}
 		segments = append(segments, segment)
